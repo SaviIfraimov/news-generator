@@ -1,37 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './List.css';
-
-import { useLocation, useNavigate } from 'react-router-dom';
-
-import { useArticleData } from '../../../hooks/useArticleData';
+import { BottomScrollListener } from 'react-bottom-scroll-listener'
+import { useArticleDataPage } from '../../../hooks/useArticleData';
 import { Article } from '../../../types/Article';
 
 import ResponsiveLayout from '../../ResponsiveLayout';
 import LoadingSpinner from '../../LoadingSpinner/LoadingSpinner';
 
 import ListFilterInput from './ListFilterInput';
-
-import { useCache } from '../../../utils/cache';
 import ListFilterButtons from './ListFilterButtons';
 
 const ArticleList: React.FC = () => {
+  const navigate = useNavigate();
+
   const [filterText, setFilterText] = useState('');
   const [category, setCategory] = useState('');
-  const location = useLocation();
+  const [page, setPage] = useState(1);
+  const [articles, setArticles] = useState<Article[]>([])
+  const { articles: fetchedArticles } = useArticleDataPage({ filterText, category, page }) || [];
   
-  
-  const prevArticleCategory: string = category || location.state?.category;
-  const { getCachedData } = useCache<Article[]>();
-  const prevStateArticles = prevArticleCategory && getCachedData(prevArticleCategory);
-  const data = useArticleData({ filterText, category }) || [];
-  const articles = prevStateArticles || data.articles;
-  
-  const filteredArticles = articles?.filter((article) =>
-    article.title?.toLowerCase().includes(filterText.toLowerCase()) ||
-    article.description?.toLowerCase().includes(filterText.toLowerCase())
-  ); // todo TODO add the type from api
-
-  const navigate = useNavigate();
+  useEffect(() => {
+    setArticles([...articles, ...fetchedArticles])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchedArticles])
 
   // Generates a numeric id given a unique string of 'title' (for redirection/url purposes)
   const hashCode = (title: string) => {
@@ -46,7 +38,13 @@ const ArticleList: React.FC = () => {
   }
 
   const handleFilterChange = (newFilterText: string) => {
+    setArticles([])
     setFilterText(newFilterText);
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setArticles([])
+    setCategory(category)
   };
 
   const imageNotFoundUrl = 'https://static.vecteezy.com/system/resources/previews/005/337/799/original/icon-image-not-found-free-vector.jpg';
@@ -57,36 +55,47 @@ const ArticleList: React.FC = () => {
 
   const handleChosenArticle = (article: Article) => {
     // Routes (redirects) to the chosen article view
-    navigate(`/articles/${hashCode(article.title)}`, {state: {article, category: category || prevArticleCategory}})
+    navigate(`/articles/${hashCode(article.title)}`, {state: {article, articles, category, filterText}})
   };
 
-  return articles.length === 0 ? <></> : (
-      <ResponsiveLayout>
-        {articles.length === 0 && <LoadingSpinner />}
-        <ListFilterInput onFilterChange={handleFilterChange} />
-        <ListFilterButtons setCategory={setCategory}/>
+  const getRandomNumber = (min: number, max: number) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 
-        <ul className="list">
-          {filteredArticles.map((article) => (
-          <li key={article.title} className="listItem" onClick={() => handleChosenArticle(article)}>
-            <div className="itemContent">
-              <p>
-                <span><strong>{article.title}</strong></span>
-              </p>
-              <p>
-                <span><em>{article.publishedAt.replace('T', ' ').slice(0, -4)}</em></span>
-              </p>
-                <img className="articleImage" 
-                  src={article.urlToImage || imageNotFoundUrl}
-                  alt="Article"
-                  onError={handleImageError} />
-              <p>
-                <span>{article.description?.slice(0,79)} <strong>{'...Read more'}</strong></span>
-              </p>
-            </div>
-          </li>
-          ))}
-        </ul>
+  return (
+      <ResponsiveLayout>
+        <ListFilterInput onFilterChange={handleFilterChange} />
+        <ListFilterButtons setCategory={handleCategoryChange}/>
+        {/* <div ref={scrollRef}> */}
+          <BottomScrollListener onBottom={() => setPage(page + 1)}>
+          <ul className="list">
+            {articles.length === 0 ?
+            <LoadingSpinner />
+            :
+            articles.map((article: Article) => (
+              <>
+            <li key={hashCode(article.title)+getRandomNumber(1,10000)} className="listItem" onClick={() => handleChosenArticle(article)}>
+              <div className="itemContent">
+                <p>
+                  <span><strong>{article.title}</strong></span>
+                </p>
+                <p>
+                  <span><em>{article.publishedAt.replace('T', ' ').slice(0, -4)}</em></span>
+                </p>
+                  <img className="articleImage" 
+                    src={article.urlToImage || imageNotFoundUrl}
+                    alt="Article"
+                    onError={handleImageError} />
+                <p>
+                  <span>{article.description?.slice(0,79)} <strong>{'...Read more'}</strong></span>
+                </p>
+              </div>
+            </li>
+            </>
+            ))}
+          </ul>
+          </BottomScrollListener>
+        {/* </div> */}
       </ResponsiveLayout>
   );
 };

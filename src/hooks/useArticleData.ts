@@ -1,39 +1,43 @@
 import { useState, useEffect } from 'react';
 
 import { Article } from '../types/Article';
-import { getArticles, getArticlesByCategory } from '../services/articlesService';
-import { useCache } from '../utils/cache';
+import { getArticlesPage, getArticlesByCategoryPage } from '../services/articlesService';
 
-interface UseArticleDataProps {
+import { useSearchParams } from 'react-router-dom';
+
+interface UseArticleDataPageProps {
   filterText: string;
   category: string;
+  page: number;
 }
 
-// A custom hook used to get the data with a caching mechanism - whether by default search or by category
-export const useArticleData = ({ filterText, category }: UseArticleDataProps) => {
+// A custom hook used to get the data - whether by default search or by category
+export const useArticleDataPage = ({ filterText, category, page }: UseArticleDataPageProps) => {
+  const [searchParams] = useSearchParams();
+  const searchParamCategory = searchParams.get('category');
+  const searchParamQ = searchParams.get('q');
+
   const [articles, setArticles] = useState<Article[]>([]);
-  
-  const { getCachedData, setCachedData } = useCache<Article[]>();
+  const debounceDelayInSeconds = 2;
 
   useEffect(() => {
-    const fetchArticles = async () => {
-      const cacheKey = category || 'default'; // Use category as part of the cache key or a default key
-      const cachedArticles = getCachedData(cacheKey);
-      if (cachedArticles) {
-        setArticles(cachedArticles);
-      } else {
+    const timeoutId = setTimeout(() => { // Debounce the API call
+      const fetchArticles = async () => {
         try {
-          const fetchedArticles = category ? await getArticlesByCategory(category) : await getArticles(filterText);
+          const fetchedArticles = searchParamCategory ? await getArticlesByCategoryPage(searchParamCategory, page) : await getArticlesPage(searchParamQ, page);
           setArticles(fetchedArticles);
-          setCachedData(cacheKey, fetchedArticles);
         } catch (error) {
           console.error('Error fetching articles:', error);
         }
-      }
-    };
+      };
 
-    fetchArticles();
-  }, [category, filterText, getCachedData, setCachedData]);
+      fetchArticles();
+    }, debounceDelayInSeconds * 1000);
+
+    return () => clearTimeout(timeoutId); // Cleanup the timeout
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category, filterText, page]);
 
   return { articles };
 };

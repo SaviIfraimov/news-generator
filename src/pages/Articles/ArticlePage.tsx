@@ -11,9 +11,6 @@ const ArticlePage: React.FC = () => {
   const location = useLocation();
   const article: Article = location.state?.article;
 
-  const category: string = location.state?.category;
-  const currentPage: string = location.state?.currentPage;
-
   const {title, author, description, content, publishedAt, urlToImage} = article;
   
   const navigate = useNavigate();
@@ -26,7 +23,7 @@ const ArticlePage: React.FC = () => {
 
   return (
     <ResponsiveLayout>
-      <SmallBackButton text={'⬅'} onClick={()=> navigate('/articles', {state: {category, currentPage}})}/>
+      <SmallBackButton text={'⬅'} onClick={()=> navigate(-1)}/>
       <div className="article">
         <div className="itemContent">
           <h3>{title}</h3>

@@ -11,7 +11,7 @@
     white-space: nowrap;
 }
 
-.medium-button:hover {
+.medium-button:hover:not(.selected) {
     background-color: #2f3236;
     cursor: pointer;
     border: 2px outset #4a5568;
@@ -19,4 +19,8 @@
 
 .medium-button:focus {
     outline: none;
+}
+
+.selected {
+    background-color: green
 }

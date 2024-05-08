@@ -1,4 +1,4 @@
-// todo todo ask zohar about tests of functionality api --- isnt so good but necesasry?
+// todo todo think about tests of functionality api --- isnt so good but necesasry?
 
 
 // import { render, fireEvent, screen } from '@testing-library/react';
