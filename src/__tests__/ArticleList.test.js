@@ -16,8 +16,19 @@ jest.mock('../hooks/useArticleData', () => ({
         urlToImage: "https://example.com/image.jpg"
       }
     ]
+  }),
+  useArticleDataPage: jest.fn().mockReturnValue({
+    articles: [
+      {
+        title: "Article about Madrid",
+        description: "Madrid is a great city. Madrid is a great city. Madrid is a great city. Madrid is a great city.",
+        publishedAt: "2024-09-09T12:00:00Z",
+        urlToImage: "https://example.com/image.jpg"
+      }
+    ]
   })
 }));
+
 
 describe('ArticleList', () => {
   test('renders article with title, date, truncated description', async () => {

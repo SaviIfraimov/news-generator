@@ -66,7 +66,6 @@ const ArticleList: React.FC = () => {
       <ResponsiveLayout>
         <ListFilterInput onFilterChange={handleFilterChange} />
         <ListFilterButtons setCategory={handleCategoryChange}/>
-        {/* <div ref={scrollRef}> */}
           <BottomScrollListener onBottom={() => setPage(page + 1)}>
           <ul className="list">
             {articles.length === 0 ?
@@ -95,7 +94,6 @@ const ArticleList: React.FC = () => {
             ))}
           </ul>
           </BottomScrollListener>
-        {/* </div> */}
       </ResponsiveLayout>
   );
 };
