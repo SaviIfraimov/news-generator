@@ -1,0 +1,22 @@
+.medium-button {
+    margin: 0.5%;
+    padding: 0.4% 1.2%;
+    background-color: rgba(74, 85, 104, 0.33);
+    border: 2px solid #2f3236;
+    border-radius: 16px;
+    letter-spacing: 1px;
+    font-family: ui-rounded;
+    font-size: medium;
+    color: white;
+    white-space: nowrap;
+}
+
+.medium-button:hover {
+    background-color: #2f3236;
+    cursor: pointer;
+    border: 2px outset #4a5568;
+}
+
+.medium-button:focus {
+    outline: none;
+}

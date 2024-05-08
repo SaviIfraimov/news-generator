@@ -1,0 +1,17 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.App {
+  text-align: left;
+  background: radial-gradient(circle, #343c4d, #343c4d, #343c4d, #282c34);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  font-family: system-ui;
+  font-size: calc(8px + 2vmin);
+  color: white;
+}

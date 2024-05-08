@@ -1,0 +1,6 @@
+.articlesSection {
+    font-size: medium;
+    white-space: nowrap;
+    display: flex;
+    justify-content: left;
+}
